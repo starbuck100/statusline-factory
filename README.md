@@ -9,7 +9,7 @@ See live training progress, server health, GPU usage, and project-specific metri
 ![License](https://img.shields.io/badge/license-MIT-blue?style=flat)
 ![Bash](https://img.shields.io/badge/bash-5.0+-4EAA25?logo=gnubash&logoColor=white)
 ![Claude Code](https://img.shields.io/badge/Claude_Code-compatible-cc785c?logo=anthropic&logoColor=white)
-![Tokens](https://img.shields.io/badge/cost-~25_tokens%2Fturn-brightgreen)
+![Tokens](https://img.shields.io/badge/context_cost-0_tokens-brightgreen)
 
 </div>
 
@@ -18,8 +18,7 @@ See live training progress, server health, GPU usage, and project-specific metri
 ```
 
 > [!NOTE]
-> **Each block only shows up when it has something worth showing.**
-> No RunPod pod? That block is silent (0 tokens). GPU idle? Gone. All services healthy? Nothing. Only active concerns consume tokens — typically 5–25 tokens/turn depending on what's running.
+> **The status line consumes zero context tokens.** It runs locally and is purely a UI element — nothing is sent to the API or injected into the conversation. Monitor everything without any context window cost.
 
 ---
 
@@ -36,11 +35,11 @@ Statusline Factory fixes that with **modular blocks** that show only what matter
 | | Feature | Detail |
 |---|---------|--------|
 | 🧩 | **Modular blocks** | Each concern is a standalone `.sh` script |
-| 🔇 | **Self-suppressing** | No pod running? Block outputs nothing (0 tokens) |
+| 🔇 | **Self-suppressing** | No pod running? Block outputs nothing — clean bar |
 | ⚡ | **Cached & async** | API/SSH calls run in background subshells, never block rendering |
 | 🎨 | **Color-coded** | Green = healthy, Yellow = warning, Red = down |
 | 📋 | **Copy-friendly** | Pod names, branches, ports — paste directly into chat |
-| 🪙 | **Token-efficient** | ~25 tokens/turn worst case. [Full analysis →](references/token-cost.md) |
+| 🪙 | **Zero token cost** | Runs locally, not injected into context. [Details →](references/token-cost.md) |
 
 ---
 
@@ -165,18 +164,12 @@ ssh -o ConnectTimeout=3 user@host "tail -1 /var/log/training.log" 2>/dev/null
 
 ---
 
-## 🪙 Token Cost
-
-| Scenario | Tokens/turn |
-|----------|------------|
-| Nothing running | **0** |
-| Only context warning | ~2 |
-| Full stack (GPU + RunPod + training + services) | **~25** |
-
-For comparison: a typical `CLAUDE.md` consumes **500–2000 tokens/turn**.
+## 🪙 Zero Context Cost
 
 > [!IMPORTANT]
-> Each block independently caches its data (30–120s intervals). Slow operations (API calls, SSH) run in background subshells and never block rendering. The status line reads only cached values — output is always instant.
+> **The status line does NOT consume API tokens or context window space.** It runs locally on your machine and is purely a visual UI element. The output is never sent to the API or included in the conversation transcript. Monitor as much as you want — your context window is unaffected.
+
+Blocks still self-suppress when irrelevant to keep the bar clean and readable — but this is about visual clarity, not token savings.
 
 ---
 

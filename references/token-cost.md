@@ -1,22 +1,23 @@
-# Token Cost Analysis
+# Status Line — Zero Context Cost
 
-The status line output is injected after each assistant message. Token cost is minimal because:
+## The status line does NOT consume tokens
 
-1. **Blocks self-suppress** — no output = 0 tokens
-2. **Output is compact** — abbreviations, no prose, ~4 chars/token
-3. **Heavy work is cached** — API/SSH calls run in background subshells, only cached results are read
+From the [official Claude Code docs](https://code.claude.com/docs/en/statusline.md):
 
-## Measured costs (2026-03-14)
+> "The status line runs locally and does not consume API tokens."
 
-| Block | When active | When inactive |
-|-------|------------|---------------|
-| context | ~2 tokens (only >50%) | 0 |
-| openclaw | ~7 tokens | 0 (gateway down) |
-| runpod | ~16 tokens (pod+training) | 0 (no pod) |
-| services | 0 (all healthy) | ~5 tokens (lists down services) |
-| **Total worst case** | **~25 tokens/turn** | **0** |
+The output is:
+- Executed locally on your machine
+- Displayed as a UI element at the bottom of the terminal
+- **Never sent to the API**
+- **Never injected into the conversation context**
+- **Never part of the transcript**
 
-For comparison: a typical CLAUDE.md consumes 500-2000 tokens per turn.
+This means you can monitor as many things as you want without any impact on your context window.
+
+## Why blocks still self-suppress
+
+Even though there's no token cost, blocks hide when irrelevant for **visual clarity** — a cluttered status bar is hard to scan. The goal is a clean, glanceable bar that shows only what matters right now.
 
 ## Refresh intervals (configurable per block)
 
@@ -32,7 +33,3 @@ Each block caches independently in `/tmp/claude-statusline/`. The `AGE -gt <SECO
 | services | 120s | `AGE -gt 120` in services.sh |
 
 Lower value = fresher data but more API/SSH calls. Higher = less load, staler data. SSH-heavy blocks (runpod training) should stay ≥30s to avoid connection spam.
-
-## Design goal
-
-Status line output should stay under 50 tokens per turn. If a block exceeds ~20 tokens, it should be split or compressed.
