@@ -79,16 +79,9 @@ fi
 
 TRAIN=$(cat "$TRAIN_CACHE" 2>/dev/null)
 
-# Color logic:
-# - TRAIN has content → green (training active)
-# - TRAIN is empty AND cache file exists AND was recently written with empty content → red (no training)
-# - TRAIN is empty AND cache is stale/missing → yellow (waiting for SSH, show pod only)
+# Simple: green with progress if we have data, yellow pod-only if not
 if [ -n "$TRAIN" ]; then
   echo -e "\033[32m🚀 $POD 🏋️ $TRAIN\033[0m"
-elif [ -f "$TRAIN_CACHE" ] && [ "$TRAIN_AGE" -lt 45 ] && [ "$(wc -c < "$TRAIN_CACHE" 2>/dev/null)" = "0" ]; then
-  # Cache exists, is fresh, AND is explicitly empty → SSH ran and found nothing
-  echo -e "\033[31m🚀 $POD ⚠ no training\033[0m"
 else
-  # Cache stale or SSH still running — just show pod
   echo -e "\033[33m🚀 $POD\033[0m"
 fi
