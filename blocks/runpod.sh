@@ -65,7 +65,7 @@ for p in pods:
     if not ssh_ip: continue
     try:
         out = subprocess.run(
-            ['ssh','-i','$HOME/.ssh/id_ed25519_starbuck100','-o','ConnectTimeout=3','-o','StrictHostKeyChecking=no',
+            ['ssh','-i','$HOME/.ssh/id_ed25519','-o','ConnectTimeout=3','-o','StrictHostKeyChecking=no',
              f'root@{ssh_ip}','-p',str(ssh_port),
              'tail -c 2000 /workspace/exp*.log 2>/dev/null || tail -c 2000 /workspace/training.log 2>/dev/null'],
             capture_output=True, text=True, timeout=8
