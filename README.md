@@ -18,8 +18,8 @@ See live training progress, server health, GPU usage, and project-specific metri
 ```
 
 > [!NOTE]
-> **Zero tokens when nothing's happening. ~25 tokens when everything is.**
-> Blocks self-suppress when irrelevant — no RunPod pod means no RunPod line. No wasted context window.
+> **Each block only shows up when it has something worth showing.**
+> No RunPod pod? That block is silent (0 tokens). GPU idle? Gone. All services healthy? Nothing. Only active concerns consume tokens — typically 5–25 tokens/turn depending on what's running.
 
 ---
 
