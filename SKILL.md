@@ -116,12 +116,59 @@ CHANGES=$(git -C /path status --porcelain 2>/dev/null | wc -l)
 
 Read the installed blocks at `~/.claude/statusline-blocks/` to see what's already available before creating duplicates.
 
-## Auto-Creation Mode
+## Power Features
 
-When the user starts working on a new project or task, consider if a status line block would help. Good candidates:
-- Long-running processes (training, builds, deploys)
-- Services that should stay up (servers, databases)
-- Remote resources costing money (cloud GPUs, VMs)
-- Workflows with progress (migrations, data processing)
+### Clickable links (OSC 8)
+Make identifiers clickable — Cmd+Click opens in browser:
+```bash
+# OSC 8 format: \e]8;;URL\aTEXT\e]8;;\a
+printf '\x1b]8;;https://runpod.io/pod/abc123\x07my-pod\x1b]8;;\x07'
+```
+Use for: pod dashboards, GitHub PRs, TensorBoard URLs, monitoring pages.
 
-Ask: "Soll ich einen Status-Line Block für X erstellen?" if the answer would clearly be yes.
+### Trend arrows
+Show direction of change without consuming extra space:
+```bash
+# Compare current vs previous cached value
+if curr < prev: trend="↓"   # improving (for loss)
+elif curr > prev: trend="↑"  # worsening
+else: trend="→"               # stable
+```
+Use for: training loss, VRAM usage, response times, queue depth.
+
+### Multi-line display
+Each `echo` creates a separate row. Use for richer displays:
+```bash
+echo -e "Line 1: projects"
+echo -e "Line 2: infrastructure"
+```
+
+### Desktop notifications via hooks
+Combine with Claude Code hooks for alerts:
+```json
+{
+  "hooks": {
+    "Notification": [{
+      "type": "command",
+      "command": "notify-send 'Claude Code' '$CLAUDE_NOTIFICATION'"
+    }]
+  }
+}
+```
+
+## Auto-Detection
+
+Proactively suggest status line blocks when you notice:
+- **Long-running processes** → training, builds, deploys, migrations
+- **Services that should stay up** → servers, databases, queues
+- **Remote resources costing money** → cloud GPUs, VMs, API endpoints
+- **Workflows with measurable progress** → data processing, test suites, crawls
+- **Git branch context** → when user switches branches, show branch info
+- **Docker containers** → when docker-compose is in the project
+
+When you detect one of these, suggest: "Soll ich einen Status-Line Block für X erstellen?"
+
+When creating blocks, automatically include:
+- **Clickable links** where a dashboard/URL exists
+- **Trend arrows** where values change over time
+- **Color thresholds** appropriate for the metric (e.g. VRAM >80% = yellow, >95% = red)
